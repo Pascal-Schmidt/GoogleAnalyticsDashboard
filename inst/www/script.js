@@ -2,9 +2,10 @@ $(document).on('click', '.delete', function() {
 
     var clicked_id = $(this).attr('id');
     class_delete = clicked_id.split("_")[1];
+    var h2_header = $("#" + clicked_id).parent().parent().text();
     $(".class_" + class_delete).remove();
 
-    var html = '<div class="added_' + class_delete + '"><p>' + class_delete +
+    var html = '<div class="added_' + class_delete + '"><p>' + h2_header +
     '</p> <button class="btn btn-default action-button btn-success added_btn shiny-bound-input" id="add_' +
     class_delete + '" type="button"><i class="fa fa-plus"></i></button></div>'
 
@@ -15,16 +16,16 @@ $(document).on('click', '.delete', function() {
         last_panel = document.querySelectorAll("[class^='class_']:last-child")[0].classList.value;
         $(html).insertAfter($("." + last_panel));
     }
-    console.log($("[class^='class_']"));
 
 });
 
 $(document).on('click', '.added_btn', function() {
     var clicked_id = $(this).attr('id');
     class_delete = clicked_id.split("_")[1];
+    var p = $("#" + clicked_id).parent().text();
+    var p = $.trim(p);
+    Shiny.setInputValue('header', p, {priority: 'event'});
     $(".added_" + class_delete).remove();
-
-    console.log($("[class^='class_']").last().attr("class"));
 
     if($("[class^='class_']").length) {
         last_panel = $("[class^='class_']").last().attr("class");
