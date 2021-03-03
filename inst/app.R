@@ -93,32 +93,32 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-  x <- c(1, 10, 100)
+  x <- c(a = "map", b = "bar", c = "line")
   output$first <- shiny::renderUI({
 
-    purrr::map(
-      .x = x,
-      ~ google_analytics_viz(
-        title = .x,
-        viz = plotly::plot_ly(x = rnorm(.x), y = rnorm(.x)),
-        btn_id = paste0("id_", .x),
-        class_all = "delete",
-        class_specific = paste0("class_", .x),
-        color = "danger"
-      )
-    ) %>%
+      purrr::map2(
+        .x = x, .y = names(x),
+        ~ google_analytics_viz(
+          title = .y,
+          viz = plotly::plot_ly(x = rnorm(10), y = rnorm(10)),
+          btn_id = paste0("id_", .x),
+          class_all = "delete",
+          class_specific = paste0("class_", .x),
+          color = "danger"
+        )
+      ) %>%
       shiny::isolate()
 
   })
 
   output$second <- shiny::renderUI({
 
-    x <- c(2, 20, 200)
-    purrr::map(
-      .x = x,
+    x <- c(d = "density", e = "scatter", f = "violin")
+    purrr::map2(
+      .x = x, .y = names(x),
       ~ div(
         class = paste0("added_", .x),
-        p(.x),
+        p(.y),
         actionButton(
           inputId = paste0("add_", .x),
           label = "",
@@ -134,20 +134,18 @@ server <- function(input, output) {
   shiny::observeEvent(input$add_btn_clicked, {
 
     panel <- stringr::str_split(input$add_btn_clicked, pattern = "_")[[1]][2]
-    print(paste("Last Panel Value:", panel))
-    panel_plot_item <- panel %>%
+
+    panel_plot_item <-
       google_analytics_viz(
-        title = .,
-        viz = plotly::plot_ly(x = rnorm(.), y = rnorm(.)),
-        btn_id = paste0("id_", .),
+        title = input$header,
+        viz = plotly::plot_ly(x = rnorm(10), y = rnorm(10)),
+        btn_id = paste0("id_", panel),
         class_all = "delete",
-        class_specific = paste0("class_", .),
+        class_specific = paste0("class_", panel),
         color = "danger"
       )
 
-    print(paste("Insert after class", input$last_panel))
-    print(paste("UI Element:", panel_plot_item))
-
+    print(input$header)
     css_selector <- ifelse(input$last_panel == "#placeholder",
                            "#placeholder",
                            paste0(".", input$last_panel))
