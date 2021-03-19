@@ -48,7 +48,7 @@ function close_sidebar() {
     document.getElementById('entire-sidebar').style.marginLeft = "0px";
 }
 
-document.getElementById("go").addEventListener("click", function() {
+document.getElementById("refresh_data-go").addEventListener("click", function() {
 
     var IDs = $(".delete")
     .map(function() { return this.id; })

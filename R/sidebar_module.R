@@ -37,8 +37,8 @@ sidebar_server <- function(id) {
 
       output$sidebar_viz <- shiny::renderUI({
 
-        x <- c(`Time Series Graph` = "a", `Most Popular Posts` = "b", `Device Category` = "h",
-               `CTR By Position` = "i")
+        x <- c(`Time Series Graph` = "a", `Most Popular Posts` = "b",
+               `Device Category` = "h", `CTR By Position` = "i")
         purrr::map2(
           .x = x, .y = names(x),
           ~ div(
