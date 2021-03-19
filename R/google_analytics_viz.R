@@ -1,20 +1,20 @@
-switch_fn <- function(viz) {
+switch_fn <- function(viz, df = NULL) {
 
   base::switch(
     viz,
-    `Time Series Graph`  = time_series_pageviews(web_data)$plot_pageviews,
-    `Most Popular Posts` = popular_posts_bar(web_data),
-    `Week Day Sessions`  = day_of_week(web_data),
-    `Visitor Map`        = map(web_data_c),
-    `Channels`           = channel_groupings(web_data),
-    `Bounce Rate`        = bounce_rate(web_data)$bounce_rate_fig,
-    `Device Category`    = device_category(web_data),
-    `CTR By Position`    = click_through_pos(web_data)
+    `Time Series Graph`  = time_series_pageviews(df)$plot_pageviews,
+    `Most Popular Posts` = popular_posts_bar(df),
+    `Week Day Sessions`  = day_of_week(df),
+    `Visitor Map`        = map(df),
+    `Channels`           = channel_groupings(df),
+    `Bounce Rate`        = bounce_rate(df)$bounce_rate_fig,
+    `Device Category`    = device_category(df),
+    `CTR By Position`    = click_through_pos(df)
   )
 
 }
 
-google_analytics_viz <- function(title = NULL, viz = NULL, btn_id,
+google_analytics_viz <- function(title = NULL, viz = NULL, btn_id, df,
                                  class_all, class_specific, color) {
 
   shiny::tagList(
@@ -39,7 +39,7 @@ google_analytics_viz <- function(title = NULL, viz = NULL, btn_id,
           ),
           div(
             class = "panel-body",
-            switch_fn(viz)
+            switch_fn(viz, df)
           )
         )
       )
