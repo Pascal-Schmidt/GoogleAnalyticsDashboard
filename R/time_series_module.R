@@ -18,7 +18,6 @@ server_time_series <- function(id, df) {
 
       time_series <- shiny::reactive({
 
-        shiny::req(df())
         actual_df <- df() %>%
           dplyr::group_by(date) %>%
           dplyr::summarise(page_views = sum(pageviews))
@@ -27,18 +26,18 @@ server_time_series <- function(id, df) {
           dplyr::select(-page_views) %>%
           dplyr::left_join(actual_df, by = "date")
 
-        # if(!is.na(new_dat$page_views[1])) {
-        #   data <- refit_tbl[, 1:3] %>%
-        #     modeltime::modeltime_calibrate(
-        #       new_data = new_dat %>%
-        #         dplyr::filter(!is.na(page_views))
-        #     ) %>%
-        #     modeltime::modeltime_accuracy()
-        # } else {
-        #   data <- NULL
-        # }
+        if(!is.na(new_dat$page_views[1])) {
+          data_dt <- refit_tbl[, 1:3] %>%
+            modeltime::modeltime_calibrate(
+              new_data = new_dat %>%
+                dplyr::filter(!is.na(page_views))
+            ) %>%
+            modeltime::modeltime_accuracy()
+        } else {
+          data_dt <- NULL
+        }
 
-        plot <- refit_tbl %>%
+        plot_plotly <- refit_tbl %>%
           modeltime::modeltime_forecast(
             new_data = new_dat,
             actual_data = actual_df
@@ -51,8 +50,8 @@ server_time_series <- function(id, df) {
 
         return(
           list(
-            data = data,
-            plot = plot
+            dt = data_dt,
+            plot = plot_plotly
           )
         )
 
@@ -62,9 +61,9 @@ server_time_series <- function(id, df) {
         time_series()$plot
       })
 
-      # output$data <- DT::renderDT({
-      #   time_series()$data
-      # })
+      output$data <- DT::renderDT({
+        time_series()$dt
+      })
 
 
 
