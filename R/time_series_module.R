@@ -62,7 +62,7 @@ server_time_series <- function(id, df) {
       })
 
       output$data <- DT::renderDT({
-        time_series()$dt
+        DT::datatable(time_series()$dt)
       })
 
 
