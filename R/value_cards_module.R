@@ -3,22 +3,26 @@ cards_ui <- function(id) {
   ns <- shiny::NS(id)
 
   shiny::tagList(
-    shiny::uiOutput(outputId = ns("value_cards"))
+    div(
+      id = ns("insert_value_cards")
+    )
   )
 
 }
 
-cards_server <- function(id, df) {
+cards_server <- function(id, df, btn) {
 
   shiny::moduleServer(
     id,
 
     function(input, output, session) {
 
-      output$value_cards <- shiny::renderUI({
+      ns <- shiny::NS(id)
 
-        shiny::req(!is.null(df()), nrow(df()) > 0)
-        div(
+      inserted_ui_element <- shiny::reactive({
+
+        shiny::req(btn() == 1)
+        html <- div(
           class = "row eq-height",
           shiny::tagList(
             create_cards(time_series_pageviews(df())$cards_sessions),
@@ -28,6 +32,14 @@ cards_server <- function(id, df) {
           )
         )
 
+      })
+
+      shiny::observe({
+        shiny::insertUI(
+          selector = paste0("#", ns("insert_value_cards")),
+          where = "afterBegin",
+          ui = inserted_ui_element()
+        )
       })
 
     }
