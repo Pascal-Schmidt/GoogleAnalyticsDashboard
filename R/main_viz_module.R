@@ -24,12 +24,15 @@ main_viz_ui <- function(id) {
 }
 
 
-main_viz_server <- function(id, data_btn, ga, sc) {
+main_viz_server <- function(id, data_btn, ga, sc, js_btn,
+                            what_viz, last_panel, get_current_viz) {
 
   shiny::moduleServer(
     id,
 
     function(input, output, session) {
+
+      ns <- session$ns
 
       # from database first
       rv <- shiny::reactiveValues(
@@ -47,7 +50,7 @@ main_viz_server <- function(id, data_btn, ga, sc) {
       # when data refreshes all displayed plots will be re-created
       shiny::observeEvent(data_btn(), {
         shiny::req(data_btn() >= 2)
-        rv$x <- all_visualizations[all_visualizations %in% input$get_current_viz]
+        rv$x <- all_visualizations[all_visualizations %in% get_current_viz()]
         rv$dfs <- what_df[names(what_df) %in% names(rv$x)]
       })
 
@@ -73,24 +76,25 @@ main_viz_server <- function(id, data_btn, ga, sc) {
       })
 
       # run when we add visualization
-      shiny::observeEvent(input$add_btn_clicked, {
+      shiny::observeEvent(js_btn(), {
 
-        panel <- input$add_btn_clicked
-        rv$single_viz <- unname(what_df[names(what_df) %in% input$header])
+        panel <- js_btn()
+        rv$single_viz <- unname(what_df[names(what_df) %in% what_viz()])
+
         panel_plot_item <-
           google_analytics_viz(
-            title = input$header,
-            viz = input$header,
-            df = if(z == "ga"){ga()}else{sc()},
+            title = what_viz(),
+            viz = what_viz(),
+            df = if(rv$single_viz == "ga"){ga()}else{sc()},
             btn_id = panel,
             class_all = "delete",
             class_specific = paste0("class_", panel),
             color = "danger"
           )
 
-        css_selector <- ifelse(input$last_panel == "#placeholder",
+        css_selector <- ifelse(last_panel() == "#placeholder",
                                "#placeholder",
-                               paste0(".", input$last_panel))
+                               paste0(".", last_panel()))
 
         shiny::insertUI(
           selector = css_selector,
