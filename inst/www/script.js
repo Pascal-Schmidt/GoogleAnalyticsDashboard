@@ -19,11 +19,10 @@ $(document).on('click', '.delete', function() {
 });
 
 $(document).on('click', '.added_btn', function() {
+
     var clicked_id = $(this).attr('id');
-    console.log(clicked_id);
     var p = $("#" + clicked_id).parent().text();
     var p = $.trim(p);
-    console.log(p)
     Shiny.setInputValue('header', p, {priority: 'event'});
     $(".added_" + clicked_id).remove();
 
