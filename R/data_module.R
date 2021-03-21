@@ -1,31 +1,3 @@
-# connect to google analytics and google search console and set scopes
-
-# ------------------------------------------------------------------------------
-options(
-  "googleAuthR.scopes.selected" = c(
-    "https://www.googleapis.com/auth/webmasters",
-    "https://www.googleapis.com/auth/webmasters.readonly",
-    "https://www.googleapis.com/auth/analytics",
-    "https://www.googleapis.com/auth/analytics.readonly",
-    "https://www.googleapis.com/auth/analytics.edit",
-    "https://www.googleapis.com/auth/analytics.manage.users",
-    "https://www.googleapis.com/auth/analytics.user.deletion"
-  )
-)
-
-googleAuthR::gar_auth_service(json_file = here::here("credentials/search_console_r_key.json"))
-website <- "https://thatdatatho.com/"
-getOption("googleAuthR.scopes.selected")
-
-googleAuthR::gar_set_client(json = here::here("credentials/client_id.json"))
-googleAnalyticsR::ga_auth(email = "thatdatatho-analysis@vast-operator-306204.iam.gserviceaccount.com",
-                          json_file = here::here("credentials/thatdatatho.json"))
-
-my_accounts <- googleAnalyticsR::ga_account_list()
-my_id <- my_accounts$viewId
-getOption("googleAuthR.scopes.selected")
-# ------------------------------------------------------------------------------
-
 # start ui module
 data_ui <- function(id) {
 
@@ -104,23 +76,29 @@ data_server <- function(id) {
       shinyjs::click(id = "go")
       web_data <- shiny::eventReactive(input$go, {
 
+        date_1 <- input$google_data[1]
+        date_2 <- input$google_data[2]
+
         web_data <- googleAnalyticsR::google_analytics(
           my_id,
-          date_range = c(input$google_data[1],
-                         input$google_data[2]),
+          date_range = c(date_1,
+                         date_2),
           metrics = c("sessions","pageviews",
                       "entrances","bounces", "bounceRate", "sessionDuration"),
           dimensions = c("date","deviceCategory", "hour", "dayOfWeekName",
                          "channelGrouping", "source", "keyword", "pagePath"),
-          anti_sample = TRUE) %>%
+          anti_sample = TRUE
+        ) %>%
           janitor::clean_names() %>%
           dplyr::mutate(page_path = stringr::str_remove_all(page_path, ".*[0-9+]/") %>%
                           stringr::str_remove_all("\\/"))
 
-        searchConsoleR::search_analytics(website,
-                                         start = input$google_data[1], end = input$google_data[2],
-                                         dimensions = c("page", "query", "country", "date"),
-                                         rowLimit = 5000) %>%
+        searchConsoleR::search_analytics(
+          website,
+          start = date_1, end = date_2,
+          dimensions = c("page", "query", "country", "date"),
+          rowLimit = 5000
+        ) %>%
           janitor::clean_names() -> web_data_c
 
         return(
