@@ -1,22 +1,7 @@
-library(shiny)
-library(plotly)
-library(leaflet)
-library(fuzzyjoin)
-library(tidyverse)
-library(googleAnalyticsR)
-library(searchConsoleR)
-library(googleAuthR)
-library(here)
-library(shiny.router)
-library(shinyjs)
+source(here::here("inst/global.R"))
 
-here::here("R") %>%
-  list.files() %>%
-  here::here("R", .) %>%
-  purrr::walk(~ source(.))
-
-# start of page
-div(
+# first page
+page_1 <- div(
 
   br(),
   br(),
@@ -41,22 +26,21 @@ div(
   div(
     id = "placeholder"
   ),
-  main_viz_ui(id = "main_viz"),
-  shiny::uiOutput(
-    outputId = "second"
-  )
-) -> page_1
-
-page_2 <- div(
-  titlePanel("Settings"),
-  p("This is a settings page")
+  main_viz_ui(id = "main_viz")
 )
 
+# page 2
+page_2 <- div(
+  ui_time_series(id = "forecast")
+)
+
+# router
 router <- make_router(
   route("/", page_1),
   route("page_2", page_2)
 )
 
+# ui
 ui <- fluidPage(
 
   shinyjs::useShinyjs(),
@@ -79,50 +63,38 @@ ui <- fluidPage(
   ),
   router$ui,
 
-  shiny::includeScript("www/script.js")
+  shiny::includeScript(here::here("inst/www/script.js"))
 
 )
 
-# Define server logic required to draw a histogram
+# server
 server <- function(input, output, session) {
 
   router$server(input, output, session)
   sidebar_server(id = "sidebar")
   new_data <- data_server(id = "refresh_data")
 
-  cards_server(id = "value_cards", df = new_data$new_ga)
+  cards_server(
+    id = "value_cards",
+    df = new_data$new_ga,
+    btn = new_data$new_data_btn
+  )
 
+  main_viz_server(
+    id = "main_viz",
+    data_btn    = new_data$new_data_btn,
+    ga          = new_data$new_ga,
+    sc          = new_data$new_sc,
+    js_btn      = shiny::reactive(input$add_btn_clicked),
+    what_viz    = shiny::reactive(input$header),
+    last_panel  = shiny::reactive(input$last_panel),
+    get_current_viz = shiny::reactive(input$all_present_vizs)
+  )
 
-  main_viz_server(id = "main_viz",
-                  data_btn = new_data$new_data_btn,
-                  ga       = new_data$new_ga,
-                  sc       = new_data$new_sc)
-
-
-  # shiny::observeEvent(input$add_btn_clicked, {
-  #
-  #   panel <- input$add_btn_clicked
-  #   panel_plot_item <-
-  #     google_analytics_viz(
-  #       title = input$header,
-  #       viz = input$header,
-  #       btn_id = panel,
-  #       class_all = "delete",
-  #       class_specific = paste0("class_", panel),
-  #       color = "danger"
-  #     )
-  #
-  #   css_selector <- ifelse(input$last_panel == "#placeholder",
-  #                          "#placeholder",
-  #                          paste0(".", input$last_panel))
-  #
-  #   shiny::insertUI(
-  #     selector = css_selector,
-  #     "afterEnd",
-  #     ui = panel_plot_item
-  #   )
-  #
-  # })
+  server_time_series(
+    id = "forecast",
+    df = new_data$new_ga
+  )
 
 }
 
