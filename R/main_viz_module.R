@@ -1,16 +1,3 @@
-all_visualizations <- c(
-  `Visitor Map` = "c", `Bounce Rate` = "e",
-  `Week Day Sessions` = "f", `Channels` = "g",
-  `Time Series Graph` = "a", `Most Popular Posts` = "b",
-  `Device Category` = "h", `CTR By Position` = "i"
-)
-what_df <- c(
-  `Visitor Map` = "sc", `Bounce Rate` = "ga",
-  `Week Day Sessions` = "ga", `Channels` = "ga",
-  `Time Series Graph` = "ga", `Most Popular Posts` = "ga",
-  `Device Category` = "ga", `CTR By Position` = "sc"
-)
-
 main_viz_ui <- function(id) {
 
   ns <- shiny::NS(id)
@@ -23,41 +10,54 @@ main_viz_ui <- function(id) {
 
 }
 
-
 main_viz_server <- function(id, data_btn, ga, sc, js_btn,
-                            what_viz, last_panel, get_current_viz) {
+                            what_viz, last_panel, get_current_viz,
+                            auth, db_viz) {
 
   shiny::moduleServer(
     id,
 
     function(input, output, session) {
 
-      ns <- session$ns
+      shiny::observe({
+        print("Database: ")
+        print(db_viz())
+      })
 
+      ns <- session$ns
+      rv <- shiny::reactiveValues()
       # from database first
-      rv <- shiny::reactiveValues(
-        x = c(`Visitor Map` = "c", `Bounce Rate` = "e",
-              `Week Day Sessions` = "f", `Channels` = "g"),
-        single_viz = NULL
-      )
+      shiny::observe({
+        rv$x <- db_viz()
+        rv$single_viz <- NULL
+        print(db_viz())
+      })
 
       # only used when action button first clicked
-      shiny::observeEvent(data_btn(), {
-        shiny::req(data_btn() == 1)
+      shiny::observe({
+        shiny::req((data_btn() == 1) & auth())
+        rv$x <- all_visualizations[unname(all_visualizations) %in% db_viz()]
         rv$dfs <- what_df[names(what_df) %in% names(rv$x)]
       })
 
       # when data refreshes all displayed plots will be re-created
-      shiny::observeEvent(data_btn(), {
-        shiny::req(data_btn() >= 2)
-        rv$x <- all_visualizations[all_visualizations %in% get_current_viz()]
-        rv$dfs <- what_df[names(what_df) %in% names(rv$x)]
+      shiny::observe({
+        shiny::req(data_btn() >= 2 & auth())
+        rv$x <- all_visualizations[unname(all_visualizations) %in% get_current_viz()]
+        rv$dfs <- what_df[names(what_df) %in% rv$x]
+      })
+
+      render_logical <- shiny::reactive({
+
+        m <- (!is.null(ga()) | !is.null(sc())) & auth() & length(rv$x) > 0 & !is.null(rv$dfs)
+        return(m)
+
       })
 
       # runs when app is opened and when data changes
       output$first <- shiny::renderUI({
 
-        shiny::req(!is.null(ga()) | !is.null(sc()))
+        shiny::req(render_logical())
         purrr::pmap(
           list(x = rv$x, y = names(rv$x), z = rv$dfs),
 
@@ -78,6 +78,7 @@ main_viz_server <- function(id, data_btn, ga, sc, js_btn,
       # run when we add visualization
       shiny::observeEvent(js_btn(), {
 
+        shiny::req(auth())
         panel <- js_btn()
         rv$single_viz <- unname(what_df[names(what_df) %in% what_viz()])
 
@@ -101,6 +102,12 @@ main_viz_server <- function(id, data_btn, ga, sc, js_btn,
           "afterEnd",
           ui = panel_plot_item
         )
+
+        # update mongo database
+        # con$update(
+        #   query = '{"password": "{}"}',
+        #   update = '{"$push":{"viz": "{panel}"}}'
+        # )
 
       })
 

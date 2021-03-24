@@ -46,22 +46,26 @@ ui <- fluidPage(
   shinyjs::useShinyjs(),
   shiny::includeCSS(here::here("inst/www/styles.css")),
 
+  loginUI(id = "login"),
   div(
-    class = "wrapper",
-    tags$ul(
-      tags$li(
-        a(
-          class = "item", href = route_link("/"),
-          shiny::icon("globe-americas"), "Google Analytics Dashboard"
+    id = "display_content",
+    div(
+      class = "wrapper",
+      tags$ul(
+        tags$li(
+          a(
+            class = "item", href = route_link("/"),
+            shiny::icon("globe-americas"), "Google Analytics Dashboard"
+          )
+        ),
+        tags$li(
+          a(class = "item", href = route_link("page_2"),
+            shiny::icon("chart-line"), "Time Series Forecast")
         )
-      ),
-      tags$li(
-        a(class = "item", href = route_link("page_2"),
-          shiny::icon("chart-line"), "Time Series Forecast")
       )
-    )
-  ),
-  router$ui,
+    ),
+    router$ui
+  ) %>% hidden(),
 
   shiny::includeScript(here::here("inst/www/script.js"))
 
@@ -69,6 +73,36 @@ ui <- fluidPage(
 
 # server
 server <- function(input, output, session) {
+
+  logout_init <- callModule(
+    shinyauthr::logout,
+    id = "logout",
+    active = reactive(credentials()$user_auth)
+  )
+
+  # call login module supplying data frame, user and password cols
+  # and reactive trigger
+  credentials <- callModule(
+    shinyauthr::login,
+    id = "login",
+    data = user_base,
+    user_col = user,
+    pwd_col = password,
+    log_out = reactive(logout_init())
+  )
+
+  shiny::observe({
+    req(credentials()$user_auth)
+    shinyjs::show(id = "display_content")
+  })
+
+  viz_vec <- shiny::reactive({
+
+    req(credentials()$user_auth)
+    value_vec <- credentials()$info$viz[[1]]
+    return(value_vec)
+
+  })
 
   router$server(input, output, session)
   sidebar_server(id = "sidebar")
@@ -82,13 +116,15 @@ server <- function(input, output, session) {
 
   main_viz_server(
     id = "main_viz",
+    auth        = shiny::reactive(credentials()$user_auth),
     data_btn    = new_data$new_data_btn,
     ga          = new_data$new_ga,
     sc          = new_data$new_sc,
     js_btn      = shiny::reactive(input$add_btn_clicked),
     what_viz    = shiny::reactive(input$header),
     last_panel  = shiny::reactive(input$last_panel),
-    get_current_viz = shiny::reactive(input$all_present_vizs)
+    get_current_viz = shiny::reactive(input$all_present_vizs),
+    db_viz      = shiny::reactive(viz_vec())
   )
 
   server_time_series(
