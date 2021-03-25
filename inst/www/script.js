@@ -5,6 +5,9 @@ $(document).on('click', '.delete', function() {
     var h2_header = $("#" + clicked_id).parent().parent().text().trim();
     $(".class_" + clicked_id).remove();
 
+    // send deleted id to shiny for deletion in db
+    Shiny.setInputValue('delete_db', clicked_id, {priority: 'event'});
+
     var html = '<div class="added_' + clicked_id +
     '"> <a id=' + clicked_id + ' href="#" class="action-button added_btn">' +
     h2_header + '</a></div>'
@@ -55,5 +58,10 @@ document.getElementById("refresh_data-go").addEventListener("click", function() 
 
     Shiny.setInputValue('all_present_vizs', IDs, {priority: 'event'});
 
+});
+
+$(window).on('resize',function(){
+    var height = $(window).height();
+    $("#time_series_out").height(height);
 });
 
