@@ -10,9 +10,6 @@ map <- function(df) {
     pretty = F,
     domain = country_count$total)
 
-  geo <- geojsonsf::geojson_sf("https://raw.githubusercontent.com/eparker12/nCoV_tracker/master/input_data/50m.geojson") %>%
-    as.data.frame()
-
   geo <- geo %>%
     fuzzyjoin::regex_inner_join(country_count, by = c(ADMIN = "country_name")) %>%
     sf::st_as_sf()
