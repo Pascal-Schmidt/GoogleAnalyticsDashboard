@@ -1,7 +1,7 @@
 popular_posts_bar <- function(df) {
 
   df %>%
-    group_by(page_path) %>%
+    dplyr::group_by(page_path) %>%
     dplyr::summarise(Views = sum(pageviews)) %>%
     dplyr::arrange(desc(Views)) %>%
     .[1:25, ] %>%
