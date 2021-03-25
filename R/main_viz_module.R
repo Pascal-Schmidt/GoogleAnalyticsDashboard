@@ -12,39 +12,35 @@ main_viz_ui <- function(id) {
 
 main_viz_server <- function(id, data_btn, ga, sc, js_btn,
                             what_viz, last_panel, get_current_viz,
-                            auth, db_viz) {
+                            auth, db_viz, user, pass, delete_db) {
 
   shiny::moduleServer(
     id,
 
     function(input, output, session) {
 
-      shiny::observe({
-        print("Database: ")
-        print(db_viz())
-      })
-
       ns <- session$ns
       rv <- shiny::reactiveValues()
+
       # from database first
-      shiny::observe({
+      shiny::observeEvent(auth(), {
         rv$x <- db_viz()
         rv$single_viz <- NULL
-        print(db_viz())
+        rv$creds <- NULL
       })
 
       # only used when action button first clicked
       shiny::observe({
-        shiny::req((data_btn() == 1) & auth())
-        rv$x <- all_visualizations[unname(all_visualizations) %in% db_viz()]
+        shiny::req((data_btn() == 1) & auth() & is.null(names(rv$x)))
+        rv$x <- all_visualizations[unname(all_visualizations) %in% rv$x]
         rv$dfs <- what_df[names(what_df) %in% names(rv$x)]
       })
 
       # when data refreshes all displayed plots will be re-created
-      shiny::observe({
+      shiny::observeEvent(data_btn(), {
         shiny::req(data_btn() >= 2 & auth())
         rv$x <- all_visualizations[unname(all_visualizations) %in% get_current_viz()]
-        rv$dfs <- what_df[names(what_df) %in% rv$x]
+        rv$dfs <- what_df[names(what_df) %in% names(rv$x)]
       })
 
       render_logical <- shiny::reactive({
@@ -71,6 +67,32 @@ main_viz_server <- function(id, data_btn, ga, sc, js_btn,
               class_specific = paste0("class_", x),
               color = "danger"
             )
+        )
+
+      })
+
+      shiny::observe({
+        print(auth())
+      })
+
+
+      shiny::observeEvent(auth(), {
+
+        # update mongo database
+        rv$creds <- paste0(
+          '{"password": "', pass(), '", "user": "', user(), '"}'
+        )
+        print(rv$creds)
+        print(con$find(rv$creds))
+
+      })
+
+      shiny::observeEvent(delete_db(), {
+
+        # delete viz
+        con$update(
+          query = rv$creds,
+          update = paste0('{"$pull":{"viz": "', delete_db(), '" }}')
         )
 
       })
@@ -103,11 +125,11 @@ main_viz_server <- function(id, data_btn, ga, sc, js_btn,
           ui = panel_plot_item
         )
 
-        # update mongo database
-        # con$update(
-        #   query = '{"password": "{}"}',
-        #   update = '{"$push":{"viz": "{panel}"}}'
-        # )
+        # add viz
+        con$update(
+          query = rv$creds,
+          update = paste0('{"$push":{"viz": "', panel, '"}}')
+        )
 
       })
 
@@ -116,3 +138,5 @@ main_viz_server <- function(id, data_btn, ga, sc, js_btn,
   )
 
 }
+
+
