@@ -3,8 +3,12 @@ ui_time_series <- function(id) {
   ns <- shiny::NS(id)
 
   shiny::tagList(
-    plotly::plotlyOutput(outputId = ns("plotly"), height = "600px"),
-    DT::DTOutput(outputId = ns("data"))
+    div(
+      class = "container",
+      id = "time_series_out",
+      plotly::plotlyOutput(outputId = ns("plotly"), height = "600px"),
+      DT::DTOutput(outputId = ns("data"))
+    )
   )
 
 }
