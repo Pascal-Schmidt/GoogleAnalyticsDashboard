@@ -96,17 +96,32 @@ server <- function(input, output, session) {
     shinyjs::show(id = "display_content")
   })
 
-  viz_vec <- shiny::reactive({
+  db_info <- shiny::reactive({
 
     req(credentials()$user_auth)
+    # db visualizations
     value_vec <- credentials()$info$viz[[1]]
-    return(value_vec)
+
+    # db creds
+    user <- credentials()$info$user
+    pass <- credentials()$info$password
+
+    return(
+      list(
+        value_vec = value_vec,
+        user      = user,
+        pass      = pass
+      )
+    )
 
   })
 
   router$server(input, output, session)
   sidebar_server(id = "sidebar")
-  new_data <- data_server(id = "refresh_data")
+  new_data <- data_server(
+    id   = "refresh_data",
+    auth = shiny::reactive(credentials()$user_auth)
+  )
 
   cards_server(
     id = "value_cards",
@@ -124,7 +139,10 @@ server <- function(input, output, session) {
     what_viz    = shiny::reactive(input$header),
     last_panel  = shiny::reactive(input$last_panel),
     get_current_viz = shiny::reactive(input$all_present_vizs),
-    db_viz      = shiny::reactive(viz_vec())
+    db_viz      = shiny::reactive(db_info()$value_vec),
+    user        = shiny::reactive(db_info()$user),
+    pass        = shiny::reactive(db_info()$pass),
+    delete_db   = shiny::reactive(input$delete_db)
   )
 
   server_time_series(
