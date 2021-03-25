@@ -60,7 +60,7 @@ data_ui <- function(id) {
 }
 
 # start server module
-data_server <- function(id) {
+data_server <- function(id, auth) {
 
   shiny::moduleServer(
     id,
@@ -74,7 +74,13 @@ data_server <- function(id) {
 
 
       shinyjs::click(id = "go")
-      web_data <- shiny::eventReactive(input$go, {
+
+      get_data <- shiny::reactive({
+        shiny::req(auth())
+        return(auth() + input$go)
+      })
+
+      web_data <- shiny::eventReactive(get_data(), {
 
         date_1 <- input$google_data[1]
         date_2 <- input$google_data[2]
