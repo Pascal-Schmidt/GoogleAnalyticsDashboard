@@ -71,19 +71,12 @@ main_viz_server <- function(id, data_btn, ga, sc, js_btn,
 
       })
 
-      shiny::observe({
-        print(auth())
-      })
-
-
       shiny::observeEvent(auth(), {
 
         # update mongo database
         rv$creds <- paste0(
           '{"password": "', pass(), '", "user": "', user(), '"}'
         )
-        print(rv$creds)
-        print(con$find(rv$creds))
 
       })
 

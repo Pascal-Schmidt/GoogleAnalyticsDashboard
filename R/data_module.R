@@ -85,19 +85,21 @@ data_server <- function(id, auth) {
         date_1 <- input$google_data[1]
         date_2 <- input$google_data[2]
 
-        web_data <- googleAnalyticsR::google_analytics(
-          my_id,
-          date_range = c(date_1,
-                         date_2),
-          metrics = c("sessions","pageviews",
-                      "entrances","bounces", "bounceRate", "sessionDuration"),
-          dimensions = c("date","deviceCategory", "hour", "dayOfWeekName",
-                         "channelGrouping", "source", "keyword", "pagePath"),
-          anti_sample = TRUE
-        ) %>%
+        web_data <-
+          googleAnalyticsR::google_analytics(
+            my_id,
+            date_range = c(date_1,
+                           date_2),
+            metrics = c("sessions","pageviews",
+                        "entrances","bounces", "bounceRate", "sessionDuration"),
+            dimensions = c("date","deviceCategory", "hour", "dayOfWeekName",
+                           "channelGrouping", "source", "keyword", "pagePath"),
+            anti_sample = TRUE
+          ) %>%
           janitor::clean_names() %>%
           dplyr::mutate(page_path = stringr::str_remove_all(page_path, ".*[0-9+]/") %>%
                           stringr::str_remove_all("\\/"))
+
 
         searchConsoleR::search_analytics(
           website,

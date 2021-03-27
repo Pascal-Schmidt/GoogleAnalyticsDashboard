@@ -6,10 +6,11 @@ channel_groupings <- function(df) {
     dplyr::ungroup() %>%
     dplyr::mutate(all = round(n / sum(n) * 100, 2))
 
-  fig <- plot_ly(data, labels = ~channel_grouping, values = ~all, type = 'pie')
+  fig <- data %>%
+    plot_ly(labels = ~channel_grouping, values = ~all, type = 'pie')
   fig <- fig %>% layout(title = '',
-                        xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                        yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+                           xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 
   return(fig)
 
