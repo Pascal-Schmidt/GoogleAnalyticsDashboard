@@ -117,10 +117,16 @@ server <- function(input, output, session) {
   })
 
   router$server(input, output, session)
-  sidebar_server(id = "sidebar")
+  sidebar_server(
+    id = "sidebar",
+    auth = shiny::reactive(credentials()$user_auth),
+    db_viz = shiny::reactive(db_info()$value_vec),
+    data_btn = new_data$new_data_btn
+  )
+
   new_data <- data_server(
-    id   = "refresh_data",
-    auth = shiny::reactive(credentials()$user_auth)
+    id     = "refresh_data",
+    auth   = shiny::reactive(credentials()$user_auth)
   )
 
   cards_server(

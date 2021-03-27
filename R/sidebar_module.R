@@ -28,19 +28,26 @@ sidebar_ui <- function(id) {
 
 }
 
-sidebar_server <- function(id) {
+sidebar_server <- function(id, auth, db_viz, data_btn) {
 
   shiny::moduleServer(
     id,
 
     function(input, output, session) {
 
+      rv <- shiny::reactiveValues()
+
+      # only used when action button first clicked
+      shiny::observe({
+        shiny::req((data_btn() == 1) & auth() & is.null(names(rv$x)))
+        rv$x <- db_viz()
+        rv$x <- all_visualizations[!(unname(all_visualizations) %in% rv$x)]
+      })
+
       output$sidebar_viz <- shiny::renderUI({
 
-        x <- c(`Time Series Graph` = "a", `Most Popular Posts` = "b",
-               `Device Category` = "h", `CTR By Position` = "i")
         purrr::map2(
-          .x = x, .y = names(x),
+          .x = rv$x, .y = names(rv$x),
           ~ div(
             class = paste0("added_", .x),
             graphs(
