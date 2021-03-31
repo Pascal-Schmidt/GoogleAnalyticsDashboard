@@ -35,19 +35,20 @@ sidebar_server <- function(id, auth, db_viz, data_btn) {
 
     function(input, output, session) {
 
-      rv <- shiny::reactiveValues()
-
       # only used when action button first clicked
-      shiny::observe({
-        shiny::req((data_btn() == 1) & auth() & is.null(names(rv$x)))
-        rv$x <- db_viz()
-        rv$x <- all_visualizations[!(unname(all_visualizations) %in% rv$x)]
+      sidebar_plots <- shiny::reactive({
+
+        shiny::req((data_btn() == 1) & auth())
+        x <- db_viz()
+        x <- all_visualizations[!(unname(all_visualizations) %in% db_viz())]
+        return(x)
+
       })
 
       output$sidebar_viz <- shiny::renderUI({
 
         purrr::map2(
-          .x = rv$x, .y = names(rv$x),
+          .x = sidebar_plots(), .y = names(sidebar_plots()),
           ~ div(
             class = paste0("added_", .x),
             graphs(
