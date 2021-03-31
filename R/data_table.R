@@ -1,5 +1,4 @@
 popular_posts_bar <- function(df) {
-
   df %>%
     dplyr::group_by(page_path) %>%
     dplyr::summarise(Views = sum(pageviews)) %>%
@@ -21,5 +20,4 @@ popular_posts_bar <- function(df) {
     shiny::tagList()
 
   return(data_table)
-
 }

@@ -1,5 +1,4 @@
 switch_fn <- function(viz, df = NULL) {
-
   base::switch(
     viz,
     `Time Series Graph`  = time_series_pageviews(df)$plot_pageviews,
@@ -11,12 +10,10 @@ switch_fn <- function(viz, df = NULL) {
     `Device Category`    = device_category(df),
     `CTR By Position`    = click_through_pos(df)
   )
-
 }
 
 google_analytics_viz <- function(title = NULL, viz = NULL, btn_id, df,
                                  class_all, class_specific, color) {
-
   shiny::tagList(
     div(
       class = class_specific,
@@ -31,9 +28,9 @@ google_analytics_viz <- function(title = NULL, viz = NULL, btn_id, df,
               class = "pull-right",
               shiny::actionButton(
                 inputId = btn_id,
-                label   = "",
-                class   = stringr::str_glue("btn-{color} {class_all}"),
-                icon    = shiny::icon("minus")
+                label = "",
+                class = stringr::str_glue("btn-{color} {class_all}"),
+                icon = shiny::icon("minus")
               )
             )
           ),
@@ -45,5 +42,4 @@ google_analytics_viz <- function(title = NULL, viz = NULL, btn_id, df,
       )
     )
   )
-
 }

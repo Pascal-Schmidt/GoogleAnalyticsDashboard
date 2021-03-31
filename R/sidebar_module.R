@@ -1,5 +1,4 @@
 sidebar_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   shiny::tagList(
@@ -22,14 +21,11 @@ sidebar_ui <- function(id) {
           shiny::uiOutput(outputId = ns("sidebar_viz"))
         )
       )
-
     )
   )
-
 }
 
 sidebar_server <- function(id, auth, db_viz, data_btn) {
-
   shiny::moduleServer(
     id,
 
@@ -37,16 +33,13 @@ sidebar_server <- function(id, auth, db_viz, data_btn) {
 
       # only used when action button first clicked
       sidebar_plots <- shiny::reactive({
-
         shiny::req((data_btn() == 1) & auth())
         x <- db_viz()
         x <- all_visualizations[!(unname(all_visualizations) %in% db_viz())]
         return(x)
-
       })
 
       output$sidebar_viz <- shiny::renderUI({
-
         purrr::map2(
           .x = sidebar_plots(), .y = names(sidebar_plots()),
           ~ div(
@@ -57,11 +50,7 @@ sidebar_server <- function(id, auth, db_viz, data_btn) {
             )
           )
         )
-
       })
-
     }
-
   )
-
 }

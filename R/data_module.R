@@ -1,16 +1,14 @@
 # start ui module
 data_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   shiny::tagList(
-
     br(),
     br(),
 
     div(
       class = "row text-center",
-      style = 'padding-bottom: 50px;',
+      style = "padding-bottom: 50px;",
       div(
         id = "get-date",
         class = "col-xl-3 col-md-3 col-sm-3 text-center",
@@ -56,12 +54,10 @@ data_ui <- function(id) {
       )
     )
   )
-
 }
 
 # start server module
 data_server <- function(id, auth) {
-
   shiny::moduleServer(
     id,
 
@@ -72,7 +68,6 @@ data_server <- function(id, auth) {
         shinyjs::toggle(id = "show_dates", anim = TRUE)
       })
 
-
       shinyjs::click(id = "go")
 
       get_data <- shiny::reactive({
@@ -81,24 +76,29 @@ data_server <- function(id, auth) {
       })
 
       web_data <- shiny::eventReactive(get_data(), {
-
         date_1 <- input$google_data[1]
         date_2 <- input$google_data[2]
 
         web_data <-
           googleAnalyticsR::google_analytics(
             my_id,
-            date_range = c(date_1,
-                           date_2),
-            metrics = c("sessions","pageviews",
-                        "entrances","bounces", "bounceRate", "sessionDuration"),
-            dimensions = c("date","deviceCategory", "hour", "dayOfWeekName",
-                           "channelGrouping", "source", "keyword", "pagePath"),
+            date_range = c(
+              date_1,
+              date_2
+            ),
+            metrics = c(
+              "sessions", "pageviews",
+              "entrances", "bounces", "bounceRate", "sessionDuration"
+            ),
+            dimensions = c(
+              "date", "deviceCategory", "hour", "dayOfWeekName",
+              "channelGrouping", "source", "keyword", "pagePath"
+            ),
             anti_sample = TRUE
           ) %>%
           janitor::clean_names() %>%
           dplyr::mutate(page_path = stringr::str_remove_all(page_path, ".*[0-9+]/") %>%
-                          stringr::str_remove_all("\\/"))
+            stringr::str_remove_all("\\/"))
 
 
         searchConsoleR::search_analytics(
@@ -115,7 +115,6 @@ data_server <- function(id, auth) {
             sc = web_data_c
           )
         )
-
       })
 
       return(
@@ -125,9 +124,6 @@ data_server <- function(id, auth) {
           new_data_btn = shiny::reactive(input$go)
         )
       )
-
     }
-
   )
-
 }

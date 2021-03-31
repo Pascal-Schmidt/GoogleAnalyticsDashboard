@@ -1,5 +1,4 @@
 cards_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   shiny::tagList(
@@ -7,20 +6,16 @@ cards_ui <- function(id) {
       id = ns("insert_value_cards")
     )
   )
-
 }
 
 cards_server <- function(id, df, btn) {
-
   shiny::moduleServer(
     id,
 
     function(input, output, session) {
-
       ns <- shiny::NS(id)
 
       inserted_ui_element <- shiny::reactive({
-
         shiny::req(btn() == 1)
         html <- div(
           class = "row eq-height",
@@ -31,7 +26,6 @@ cards_server <- function(id, df, btn) {
             create_cards(session_duration(df()))
           )
         )
-
       })
 
       shiny::observe({
@@ -41,9 +35,6 @@ cards_server <- function(id, df, btn) {
           ui = inserted_ui_element()
         )
       })
-
     }
-
   )
-
 }

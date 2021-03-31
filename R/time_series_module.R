@@ -1,5 +1,4 @@
 ui_time_series <- function(id) {
-
   ns <- shiny::NS(id)
 
   shiny::tagList(
@@ -10,18 +9,14 @@ ui_time_series <- function(id) {
       DT::DTOutput(outputId = ns("data"))
     )
   )
-
 }
 
 server_time_series <- function(id, df) {
-
   shiny::moduleServer(
     id,
 
     function(input, output, session) {
-
       time_series <- shiny::reactive({
-
         actual_df <- df() %>%
           dplyr::group_by(date) %>%
           dplyr::summarise(page_views = sum(pageviews))
@@ -30,7 +25,7 @@ server_time_series <- function(id, df) {
           dplyr::select(-page_views) %>%
           dplyr::left_join(actual_df, by = "date")
 
-        if(!is.na(new_dat$page_views[1])) {
+        if (!is.na(new_dat$page_views[1])) {
           data_dt <- refit_tbl[, 1:3] %>%
             modeltime::modeltime_calibrate(
               new_data = new_dat %>%
@@ -58,7 +53,6 @@ server_time_series <- function(id, df) {
             plot = plot_plotly
           )
         )
-
       })
 
       output$plotly <- plotly::renderPlotly({
@@ -68,11 +62,6 @@ server_time_series <- function(id, df) {
       output$data <- DT::renderDT({
         DT::datatable(time_series()$dt)
       })
-
-
-
     }
-
   )
-
 }

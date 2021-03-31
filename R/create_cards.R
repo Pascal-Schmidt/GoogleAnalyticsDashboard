@@ -1,5 +1,4 @@
 create_cards <- function(df) {
-
   color <- ifelse(df$col_1[1] < df$col_1[2], "green", "red")
   direction <- ifelse(df$col_1[1] < df$col_1[2], "up", "down")
 
@@ -21,8 +20,10 @@ create_cards <- function(df) {
           ),
           div(
             style = stringr::str_glue("color: {color};"),
-            p(shiny::icon(paste0("arrow-", direction)),
-            paste0(df$col_2[2], "%"))
+            p(
+              shiny::icon(paste0("arrow-", direction)),
+              paste0(df$col_2[2], "%")
+            )
           )
         ),
         div(
@@ -36,5 +37,4 @@ create_cards <- function(df) {
       )
     )
   )
-
 }
