@@ -24,7 +24,11 @@ main_viz_server <- function(id, data_btn, ga, sc, js_btn,
       shiny::observeEvent(auth(), {
         rv$x <- db_viz()
         rv$single_viz <- NULL
-        rv$creds <- NULL
+
+        # update mongo database
+        rv$creds <- paste0(
+          '{"password": "', pass(), '", "user": "', user(), '"}'
+        )
       })
 
       # only used when action button first clicked
@@ -70,13 +74,13 @@ main_viz_server <- function(id, data_btn, ga, sc, js_btn,
         )
       })
 
-      shiny::observeEvent(auth(), {
-
-        # update mongo database
-        rv$creds <- paste0(
-          '{"password": "', pass(), '", "user": "', user(), '"}'
-        )
-      })
+      # shiny::observeEvent(auth(), {
+      #
+      #   # update mongo database
+      #   rv$creds <- paste0(
+      #     '{"password": "', pass(), '", "user": "', user(), '"}'
+      #   )
+      # })
 
       shiny::observeEvent(delete_db(), {
 
