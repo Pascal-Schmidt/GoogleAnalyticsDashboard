@@ -1,3 +1,4 @@
+library(magrittr)
 start_app <- function() {
   dir <- here::here("inst") %>%
     list.files() %>%
