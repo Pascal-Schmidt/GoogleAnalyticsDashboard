@@ -40,8 +40,9 @@ sidebar_server <- function(id, auth, db_viz, data_btn) {
       })
 
       output$sidebar_viz <- shiny::renderUI({
+        sidebar_plots <- shiny::isolate(sidebar_plots())
         purrr::map2(
-          .x = sidebar_plots(), .y = names(sidebar_plots()),
+          .x = sidebar_plots, .y = names(sidebar_plots),
           ~ div(
             class = paste0("added_", .x),
             graphs(
