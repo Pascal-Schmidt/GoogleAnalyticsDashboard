@@ -1,7 +1,6 @@
 $(document).on('click', '.delete', function() {
 
     var clicked_id = $(this).attr('id');
-    console.log(clicked_id)
     var h2_header = $("#" + clicked_id).parent().parent().text().trim();
     $(".class_" + clicked_id).remove();
 
@@ -56,7 +55,15 @@ document.getElementById("refresh_data-go").addEventListener("click", function() 
     .map(function() { return this.id; })
     .get();
 
+    var i = 0
+    for(i = 0; i < IDs.length; i++) {
+        console.log(".class_" + IDs[i])
+        $(".class_" + IDs[i]).remove();
+    }
+
     Shiny.setInputValue('all_present_vizs', IDs, {priority: 'event'});
+
+
 
 });
 
