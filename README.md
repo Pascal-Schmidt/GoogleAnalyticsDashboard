@@ -1,6 +1,6 @@
 # GoogleAnalyticsDashboard
 
-The application pulls data from Google Analytics and Google Search Console and analysis some metrics of my personal blog (thatdatatho.com). I started my blog in my third year as an undergraduate student in 2018 and I have been blogging mainly about R since then. I have learned a lot about R, statistics, and programming since then and started my R Shiny journey in April 2020.
+The application pulls data from Google Analytics and Google Search Console and analizes some metrics of my personal blog (thatdatatho.com)[https://thatdatatho.com/]. I started my blog in my third year as an undergraduate student in 2018 and I have been blogging mainly about R since then. I have learned a lot about R, statistics, and programming since then and started my R Shiny journey in April 2020.
 
 I dived in deeply into Shiny and learned so many new things during that year until now.
 
