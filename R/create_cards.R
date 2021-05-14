@@ -1,7 +1,7 @@
 create_cards <- function(df) {
 
   # reversed for bounce rate
-  if(df$icon == "exclamation-circle") {
+  if(df$icon[1] == "exclamation-circle") {
     color <- ifelse(df$col_1[1] < df$col_1[2], "red", "green")
     direction <- ifelse(df$col_1[1] < df$col_1[2], "down", "up")
   } else {
