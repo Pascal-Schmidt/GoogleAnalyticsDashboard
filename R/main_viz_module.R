@@ -74,14 +74,6 @@ main_viz_server <- function(id, data_btn, ga, sc, js_btn,
         )
       })
 
-      # shiny::observeEvent(auth(), {
-      #
-      #   # update mongo database
-      #   rv$creds <- paste0(
-      #     '{"password": "', pass(), '", "user": "', user(), '"}'
-      #   )
-      # })
-
       shiny::observeEvent(delete_db(), {
 
         # delete viz
